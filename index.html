@@ -5,21 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đánh Giá Xếp Loại Viên Chức</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.5; }
-        h2, h3 { text-align: center; }
-        .form-group { margin-bottom: 10px; }
-        label { font-weight: bold; }
-        input[type="text"], input[type="date"], select { width: 100%; padding: 6px; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.5; background-color: #f9f9f9; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h2, h3 { text-align: center; color: #1a252f; }
+        .form-group { margin-bottom: 12px; }
+        label { font-weight: bold; display: block; margin-bottom: 4px; }
+        input[type="text"], select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background-color: #f2f2f2; }
-        input[type="number"] { width: 70px; text-align: center; }
-        .btn-submit { background-color: #4CAF50; color: white; padding: 12px 20px; border: none; font-size: 16px; cursor: pointer; width: 100%; margin-top: 20px; }
-        .btn-submit:hover { background-color: #45a049; }
+        input[type="number"] { width: 60px; text-align: center; padding: 4px; }
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        .btn { padding: 12px 20px; border: none; font-size: 15px; cursor: pointer; border-radius: 4px; flex: 1; font-weight: bold; color: white; }
+        .btn-preview { background-color: #2196F3; }
+        .btn-submit { background-color: #4CAF50; }
+        .btn:hover { opacity: 0.9; }
+
+        /* Modal xem trước */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
+        .modal-content { background: white; width: 80%; max-width: 700px; margin: 5% auto; padding: 20px; border-radius: 8px; max-height: 80vh; overflow-y: auto; }
+        .close-btn { float: right; font-size: 24px; cursor: pointer; font-weight: bold; }
+        .pdf-link { display: inline-block; margin-top: 15px; background: #e74c3c; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; }
     </style>
 </head>
 <body>
 
+<div class="container">
     <h2>BẢN TỰ ĐÁNH GIÁ, XẾP LOẠI CỦA CÁ NHÂN</h2>
     <h3>Trường THPT Số 1 Nguyễn Thái Bình</h3>
 
@@ -84,7 +95,6 @@
 
         <h3>PHẦN II: KHUNG TIÊU CHÍ THỰC HIỆN NHIỆM VỤ (Tối đa 70 điểm)</h3>
         
-        <!-- Bảng cho VC Không Quản Lý -->
         <table id="tblKhongQuanLy">
             <tr><th>TT</th><th>Tiêu chí (Không quản lý)</th><th>Điểm tối đa</th><th>Tự chấm</th></tr>
             <tr><td>1</td><td>Mức độ hoàn thành số lượng sản phẩm, công việc</td><td>15</td><td><input type="number" class="p2_kql" max="15" min="0" value="15"></td></tr>
@@ -94,7 +104,6 @@
             <tr><td>5</td><td>Kết quả vượt trội trong công tác</td><td>11</td><td><input type="number" class="p2_kql" max="11" min="0" value="11"></td></tr>
         </table>
 
-        <!-- Bảng cho VC Quản Lý -->
         <table id="tblQuanLy" style="display:none;">
             <tr><th>TT</th><th>Tiêu chí (Lãnh đạo, quản lý)</th><th>Điểm tối đa</th><th>Tự chấm</th></tr>
             <tr><td>1</td><td>Mức độ hoàn thành số lượng sản phẩm, công việc</td><td>8</td><td><input type="number" class="p2_ql" max="8" min="0" value="8"></td></tr>
@@ -107,73 +116,121 @@
             <tr><td>8</td><td>Kết quả vượt trội trong công tác</td><td>11</td><td><input type="number" class="p2_ql" max="11" min="0" value="11"></td></tr>
         </table>
 
-        <button type="button" class="btn-submit" onclick="guiDanhGia()">GỬI PHIẾU ĐÁNH GIÁ</button>
+        <div class="btn-group">
+            <button type="button" class="btn btn-preview" onclick="xemTruocPhiu()">XEM TRƯỚC PHIẾU</button>
+            <button type="button" class="btn btn-submit" onclick="guiDanhGia()">LƯU & XUẤT FILE PDF</button>
+        </div>
     </form>
+</div>
 
-    <script>
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzeY3vpfv6zYNiZ-ZLYS70B0eEiWaOKy7tIPXqIvgz7wJvyey9qw2QSom9NJDj8H3BLtg/exec';
+<!-- Khung Modal xem trước -->
+<div id="modalXemTruoc" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="dongModal()">&times;</span>
+        <h3 style="text-align:center;">XEM TRƯỚC PHIẾU ĐÁNH GIÁ</h3>
+        <hr>
+        <div id="noiDungXemTruoc"></div>
+    </div>
+</div>
 
-        function doiLoaiVienChuc() {
-            const loai = document.getElementById('loaiVienChuc').value;
-            if (loai === 'quan_ly') {
-                document.getElementById('tblKhongQuanLy').style.display = 'none';
-                document.getElementById('tblQuanLy').style.display = 'table';
+<script>
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxUpGBPg5RtqX5Dq1dWTZchXw4kveaNpxgEOXouXBtxYXFypsiFCv_xNyYUdy3721heJQ/exec';
+
+    function doiLoaiVienChuc() {
+        const loai = document.getElementById('loaiVienChuc').value;
+        document.getElementById('tblKhongQuanLy').style.display = (loai === 'quan_ly') ? 'none' : 'table';
+        document.getElementById('tblQuanLy').style.display = (loai === 'quan_ly') ? 'table' : 'none';
+    }
+
+    function tinhTongDiem() {
+        let p1 = 0, p2 = 0;
+        document.querySelectorAll('.p1').forEach(i => p1 += Number(i.value) || 0);
+        const loai = document.getElementById('loaiVienChuc').value;
+        const selector = loai === 'quan_ly' ? '.p2_ql' : '.p2_kql';
+        document.querySelectorAll(selector).forEach(i => p2 += Number(i.value) || 0);
+        
+        const tong = p1 + p2;
+        let xepLoai = "Chưa hoàn thành nhiệm vụ";
+        if (tong >= 90) xepLoai = "Hoàn thành xuất sắc nhiệm vụ";
+        else if (tong >= 70) xepLoai = "Hoàn thành tốt nhiệm vụ";
+        else if (tong >= 50) xepLoai = "Hoàn thành nhiệm vụ";
+
+        return { p1, p2, tong, xepLoai };
+    }
+
+    function xemTruocPhiu() {
+        const d = tinhTongDiem();
+        const hoTen = document.getElementById('hoTen').value || '[Chưa nhập]';
+        const donVi = document.getElementById('donVi').value || '[Chưa nhập]';
+        
+        document.getElementById('noiDungXemTruoc').innerHTML = `
+            <p><b>Họ và tên:</b> ${hoTen}</p>
+            <p><b>Đơn vị:</b> ${donVi}</p>
+            <p><b>Điểm Phần I (Khung tiêu chí chung):</b> ${d.p1} / 30 điểm</p>
+            <p><b>Điểm Phần II (Thực hiện nhiệm vụ):</b> ${d.p2} / 70 điểm</p>
+            <p><b>Tổng điểm đánh giá:</b> <span style="color:blue; font-size:18px; font-weight:bold;">${d.tong} / 100 điểm</span></p>
+            <p><b>Mức xếp loại dự kiến:</b> <span style="color:green; font-size:18px; font-weight:bold;">${d.xepLoai}</span></p>
+        `;
+        document.getElementById('modalXemTruoc').style.display = 'block';
+    }
+
+    function dongModal() {
+        document.getElementById('modalXemTruoc').style.display = 'none';
+    }
+
+    async function guiDanhGia() {
+        const hoTen = document.getElementById('hoTen').value;
+        const donVi = document.getElementById('donVi').value;
+
+        if (!hoTen || !donVi) {
+            alert('Vui lòng nhập Họ tên và Đơn vị công tác trước khi lưu!');
+            return;
+        }
+
+        const d = tinhTongDiem();
+        const dataPayload = {
+            quyNam: document.getElementById('quyNam').value,
+            hoTen: hoTen,
+            ngaySinh: document.getElementById('ngaySinh').value,
+            chucVuDang: document.getElementById('chucVuDang').value,
+            chucVuChinhQuyen: document.getElementById('chucVuChinhQuyen').value,
+            chucVuDoanThe: document.getElementById('chucVuDoanThe').value,
+            donVi: donVi,
+            loaiVienChuc: document.getElementById('loaiVienChuc').value === 'quan_ly' ? 'Lãnh đạo, quản lý' : 'Viên chức',
+            tongPhan1: d.p1,
+            tongPhan2: d.p2,
+            chiTietDiem: { p1: d.p1, p2: d.p2 }
+        };
+
+        alert('Đang xử lý lưu phiếu và tạo tệp PDF, vui lòng đợi trong giây lát...');
+
+        try {
+            const response = await fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(dataPayload)
+            });
+
+            const result = await response.json();
+            if (result.status === 'success') {
+                document.getElementById('noiDungXemTruoc').innerHTML = `
+                    <h3 style="color:green;">LƯU PHIẾU VÀ TẠO PDF THÀNH CÔNG!</h3>
+                    <p><b>Họ và tên:</b> ${hoTen}</p>
+                    <p><b>Tổng điểm:</b> ${result.tongDiem} điểm</p>
+                    <p><b>Xếp loại:</b> ${result.xepLoai}</p>
+                    <a href="${result.pdfUrl}" target="_blank" class="pdf-link">📄 TẢI PHIẾU ĐÁNH GIÁ (FILE PDF)</a>
+                `;
+                document.getElementById('modalXemTruoc').style.display = 'block';
+                document.getElementById('formDanhGia').reset();
+                doiLoaiVienChuc();
             } else {
-                document.getElementById('tblKhongQuanLy').style.display = 'table';
-                document.getElementById('tblQuanLy').style.display = 'none';
+                alert('Lỗi: ' + result.message);
             }
+        } catch (error) {
+            console.error('Lỗi kết nối:', error);
+            alert('Không thể kết nối đến hệ thống!');
         }
-
-        async function guiDanhGia() {
-            // Tính tổng Phần 1
-            let tongP1 = 0;
-            document.querySelectorAll('.p1').forEach(inp => tongP1 += Number(inp.value) || 0);
-
-            // Tính tổng Phần 2
-            let tongP2 = 0;
-            const loai = document.getElementById('loaiVienChuc').value;
-            const selectorP2 = loai === 'quan_ly' ? '.p2_ql' : '.p2_kql';
-            document.querySelectorAll(selectorP2).forEach(inp => tongP2 += Number(inp.value) || 0);
-
-            const dataPayload = {
-                quyNam: document.getElementById('quyNam').value,
-                hoTen: document.getElementById('hoTen').value,
-                ngaySinh: document.getElementById('ngaySinh').value,
-                chucVuDang: document.getElementById('chucVuDang').value,
-                chucVuChinhQuyen: document.getElementById('chucVuChinhQuyen').value,
-                chucVuDoanThe: document.getElementById('chucVuDoanThe').value,
-                donVi: document.getElementById('donVi').value,
-                loaiVienChuc: loai === 'quan_ly' ? 'Cán bộ quản lý' : 'Viên chức',
-                tongPhan1: tongP1,
-                tongPhan2: tongP2,
-                chiTietDiem: { p1: tongP1, p2: tongP2 }
-            };
-
-            if (!dataPayload.hoTen || !dataPayload.donVi) {
-                alert('Vui lòng điền đầy đủ Họ tên và Đơn vị công tác!');
-                return;
-            }
-
-            try {
-                const response = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(dataPayload)
-                });
-
-                const result = await response.json();
-                if (result.status === 'success') {
-                    alert(`Gửi đánh giá thành công!\nTổng điểm: ${result.tongDiem}/100\nXếp loại đề xuất: ${result.xepLoai}`);
-                    document.getElementById('formDanhGia').reset();
-                    doiLoaiVienChuc();
-                } else {
-                    alert('Lỗi: ' + result.message);
-                }
-            } catch (error) {
-                console.error('Lỗi kết nối:', error);
-                alert('Không thể kết nối tới Google Apps Script!');
-            }
-        }
-    </script>
+    }
+</script>
 </body>
 </html>
