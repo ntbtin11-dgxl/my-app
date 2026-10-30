@@ -1,67 +1,179 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ứng dụng Web Tích hợp Google Drive</title>
+    <title>Đánh Giá Xếp Loại Viên Chức</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.5; }
+        h2, h3 { text-align: center; }
+        .form-group { margin-bottom: 10px; }
+        label { font-weight: bold; }
+        input[type="text"], input[type="date"], select { width: 100%; padding: 6px; box-sizing: border-box; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        input[type="number"] { width: 70px; text-align: center; }
+        .btn-submit { background-color: #4CAF50; color: white; padding: 12px 20px; border: none; font-size: 16px; cursor: pointer; width: 100%; margin-top: 20px; }
+        .btn-submit:hover { background-color: #45a049; }
+    </style>
 </head>
 <body>
-    <h1>Ứng dụng Web của Thầy</h1>
-    <p>Nội dung ứng dụng web ở đây.</p>
+
+    <h2>BẢN TỰ ĐÁNH GIÁ, XẾP LOẠI CỦA CÁ NHÂN</h2>
+    <h3>Trường THPT Số 1 Nguyễn Thái Bình</h3>
+
+    <form id="formDanhGia">
+        <div class="form-group">
+            <label>Đánh giá Quý/Năm:</label>
+            <input type="text" id="quyNam" value="Quý 1/2026" required>
+        </div>
+        <div class="form-group">
+            <label>Họ và tên:</label>
+            <input type="text" id="hoTen" required>
+        </div>
+        <div class="form-group">
+            <label>Ngày sinh:</label>
+            <input type="text" id="ngaySinh" placeholder="DD/MM/YYYY">
+        </div>
+        <div class="form-group">
+            <label>Chức vụ Đảng:</label>
+            <input type="text" id="chucVuDang">
+        </div>
+        <div class="form-group">
+            <label>Chức vụ chính quyền:</label>
+            <input type="text" id="chucVuChinhQuyen">
+        </div>
+        <div class="form-group">
+            <label>Chức vụ đoàn thể:</label>
+            <input type="text" id="chucVuDoanThe">
+        </div>
+        <div class="form-group">
+            <label>Đơn vị công tác (Tổ chuyên môn):</label>
+            <input type="text" id="donVi" required>
+        </div>
+        <div class="form-group">
+            <label>Đối tượng viên chức:</label>
+            <select id="loaiVienChuc" onchange="doiLoaiVienChuc()">
+                <option value="khong_quan_ly">Viên chức không giữ chức vụ quản lý</option>
+                <option value="quan_ly">Viên chức giữ chức vụ lãnh đạo, quản lý</option>
+            </select>
+        </div>
+
+        <h3>PHẦN I: KHUNG TIÊU CHÍ CHUNG (Tối đa 30 điểm)</h3>
+        <table>
+            <tr><th>TT</th><th>Nội dung tiêu chí</th><th>Điểm tối đa</th><th>Tự chấm</th></tr>
+            <tr><td>1.a</td><td>Chấp hành đường lối, chủ trương của Đảng, pháp luật...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
+            <tr><td>1.b</td><td>Lập trường chính trị vững vàng, đạo đức lối sống...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
+            <tr><td>1.c</td><td>Chuẩn mực đạo đức nghề nghiệp, trung thực...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
+            <tr><td>1.d</td><td>Không tham nhũng, tiêu cực, lãng phí...</td><td>1</td><td><input type="number" class="p1" max="1" min="0" value="1"></td></tr>
+            <tr><td>1.đ</td><td>Tinh thần đoàn kết, hợp tác...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
+            <tr><td>1.e</td><td>Tự phê bình và phê bình...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
+            <tr><td>1.g</td><td>Chấp hành phân công của tổ chức...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
+            <tr><td>1.h</td><td>Thực hiện quy chế, nội quy cơ quan...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
+            <tr><td>1.i</td><td>Kê khai tài sản, thu nhập...</td><td>1</td><td><input type="number" class="p1" max="1" min="0" value="1"></td></tr>
+            <tr><td>1.k</td><td>Báo cáo đầy đủ, trung thực...</td><td>1</td><td><input type="number" class="p1" max="1" min="0" value="1"></td></tr>
+            <tr><td>2.a</td><td>Năng lực chuyên môn, nghiệp vụ...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
+            <tr><td>2.b</td><td>Khả năng đáp ứng nhiệm vụ thường xuyên, đột xuất...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
+            <tr><td>2.c</td><td>Tinh thần trách nhiệm trong thực hiện nhiệm vụ...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
+            <tr><td>2.d</td><td>Thái độ phục vụ, phối hợp đồng nghiệp...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
+            <tr><td>3.a</td><td>Sản phẩm, giải pháp đột phá, sáng tạo...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
+            <tr><td>3.b</td><td>Tinh thần chịu trách nhiệm...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
+            <tr><td>3.c</td><td>Chủ động ra quyết định, không né tránh...</td><td>1</td><td><input type="number" class="p1" max="1" min="0" value="1"></td></tr>
+        </table>
+
+        <h3>PHẦN II: KHUNG TIÊU CHÍ THỰC HIỆN NHIỆM VỤ (Tối đa 70 điểm)</h3>
+        
+        <!-- Bảng cho VC Không Quản Lý -->
+        <table id="tblKhongQuanLy">
+            <tr><th>TT</th><th>Tiêu chí (Không quản lý)</th><th>Điểm tối đa</th><th>Tự chấm</th></tr>
+            <tr><td>1</td><td>Mức độ hoàn thành số lượng sản phẩm, công việc</td><td>15</td><td><input type="number" class="p2_kql" max="15" min="0" value="15"></td></tr>
+            <tr><td>2</td><td>Chất lượng, hiệu quả sản phẩm, dịch vụ</td><td>15</td><td><input type="number" class="p2_kql" max="15" min="0" value="15"></td></tr>
+            <tr><td>3</td><td>Tiến độ, bảo đảm thời gian thực hiện</td><td>15</td><td><input type="number" class="p2_kql" max="15" min="0" value="15"></td></tr>
+            <tr><td>4</td><td>Đổi mới, sáng kiến, ứng dụng CNTT/chuyển đổi số</td><td>14</td><td><input type="number" class="p2_kql" max="14" min="0" value="14"></td></tr>
+            <tr><td>5</td><td>Kết quả vượt trội trong công tác</td><td>11</td><td><input type="number" class="p2_kql" max="11" min="0" value="11"></td></tr>
+        </table>
+
+        <!-- Bảng cho VC Quản Lý -->
+        <table id="tblQuanLy" style="display:none;">
+            <tr><th>TT</th><th>Tiêu chí (Lãnh đạo, quản lý)</th><th>Điểm tối đa</th><th>Tự chấm</th></tr>
+            <tr><td>1</td><td>Mức độ hoàn thành số lượng sản phẩm, công việc</td><td>8</td><td><input type="number" class="p2_ql" max="8" min="0" value="8"></td></tr>
+            <tr><td>2</td><td>Chất lượng, hiệu quả công việc</td><td>9</td><td><input type="number" class="p2_ql" max="9" min="0" value="9"></td></tr>
+            <tr><td>3</td><td>Tiến độ thực hiện nhiệm vụ</td><td>8</td><td><input type="number" class="p2_ql" max="8" min="0" value="8"></td></tr>
+            <tr><td>4</td><td>Kết quả hoạt động của đơn vị được giao phụ trách</td><td>9</td><td><input type="number" class="p2_ql" max="9" min="0" value="9"></td></tr>
+            <tr><td>5</td><td>Năng lực tổ chức, điều hành, kiểm tra, giám sát</td><td>9</td><td><input type="number" class="p2_ql" max="9" min="0" value="9"></td></tr>
+            <tr><td>6</td><td>Năng lực tập hợp, đoàn kết quần chúng</td><td>8</td><td><input type="number" class="p2_ql" max="8" min="0" value="8"></td></tr>
+            <tr><td>7</td><td>Đổi mới sáng kiến, chuyển đổi số nổi bật</td><td>8</td><td><input type="number" class="p2_ql" max="8" min="0" value="8"></td></tr>
+            <tr><td>8</td><td>Kết quả vượt trội trong công tác</td><td>11</td><td><input type="number" class="p2_ql" max="11" min="0" value="11"></td></tr>
+        </table>
+
+        <button type="button" class="btn-submit" onclick="guiDanhGia()">GỬI PHIẾU ĐÁNH GIÁ</button>
+    </form>
 
     <script>
-        // Dán đoạn mã xử lý uploadToGoogleDrive ở Bước 3 vào đây
-		<!-- Dưới đây là phần mã Javascript cốt lõi cần cập nhật trong file index.html của thầy -->
-<script>
-  // CẤU HÌNH KẾT NỐI GOOGLE DRIVE (THÔNG QUA APPS SCRIPT)
-  //const GOOGLE_APP_SCRIPT_URL = 'ĐIỀN_URL_APPS_SCRIPT_CỦA_THẦY_VÀO_ĐÂY';
-  const GOOGLE_APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxg2TNW4prsxxTMTGU0YuVLstCNml2BRKqDxGiqAHgGiBOdyjvOYE4ZXUBjyeJjlNTHyw/exec';
+        const APPS_SCRIPT_URL = 'ĐIỀN_URL_WEB_APP_APPS_SCRIPT_CỦA_THẦY_VÀO_ĐÂY';
 
-  // Hàm nộp phiếu đánh giá (Gửi lên Google Drive)
-  async function submitEvaluation(formData) {
-    try {
-      Swal.fire({
-        title: 'Đang lưu trữ...',
-        text: 'Dữ liệu đang được gửi về Google Drive của nhà trường.',
-        allowOutsideClick: false,
-        didOpen: () => { Swal.showLoading(); }
-      });
+        function doiLoaiVienChuc() {
+            const loai = document.getElementById('loaiVienChuc').value;
+            if (loai === 'quan_ly') {
+                document.getElementById('tblKhongQuanLy').style.display = 'none';
+                document.getElementById('tblQuanLy').style.display = 'table';
+            } else {
+                document.getElementById('tblKhongQuanLy').style.display = 'table';
+                document.getElementById('tblQuanLy').style.display = 'none';
+            }
+        }
 
-      const response = await fetch(GOOGLE_APP_SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify(formData),
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' } // Cần để tránh lỗi CORS
-      });
+        async function guiDanhGia() {
+            // Tính tổng Phần 1
+            let tongP1 = 0;
+            document.querySelectorAll('.p1').forEach(inp => tongP1 += Number(inp.value) || 0);
 
-      const result = await response.json();
-      if(result.status === 'success') {
-        Swal.fire('Thành công!', 'Phiếu đánh giá đã được lưu vào hệ thống.', 'success');
-      } else {
-        throw new Error(result.message);
-      }
-    } catch (error) {
-      Swal.fire('Lỗi', 'Không thể kết nối đến máy chủ. Vui lòng thử lại.', 'error');
-      console.error(error);
-    }
-  }
+            // Tính tổng Phần 2
+            let tongP2 = 0;
+            const loai = document.getElementById('loaiVienChuc').value;
+            const selectorP2 = loai === 'quan_ly' ? '.p2_ql' : '.p2_kql';
+            document.querySelectorAll(selectorP2).forEach(inp => tongP2 += Number(inp.value) || 0);
 
-  // Hàm tải dữ liệu báo cáo cho Ban Giám Hiệu
-  async function loadDashboardData() {
-    try {
-      const response = await fetch(GOOGLE_APP_SCRIPT_URL);
-      const data = await response.json();
-      
-      // Xử lý dữ liệu 'data' để hiển thị lên bảng Dashboard
-      console.log("Dữ liệu từ Google Drive: ", data);
-      renderDashboardTable(data); 
-      updateCharts(data);
-      
-    } catch (error) {
-      console.error("Lỗi khi tải dữ liệu báo cáo: ", error);
-    }
-  }
-</script>
+            const dataPayload = {
+                quyNam: document.getElementById('quyNam').value,
+                hoTen: document.getElementById('hoTen').value,
+                ngaySinh: document.getElementById('ngaySinh').value,
+                chucVuDang: document.getElementById('chucVuDang').value,
+                chucVuChinhQuyen: document.getElementById('chucVuChinhQuyen').value,
+                chucVuDoanThe: document.getElementById('chucVuDoanThe').value,
+                donVi: document.getElementById('donVi').value,
+                loaiVienChuc: loai === 'quan_ly' ? 'Cán bộ quản lý' : 'Viên chức',
+                tongPhan1: tongP1,
+                tongPhan2: tongP2,
+                chiTietDiem: { p1: tongP1, p2: tongP2 }
+            };
+
+            if (!dataPayload.hoTen || !dataPayload.donVi) {
+                alert('Vui lòng điền đầy đủ Họ tên và Đơn vị công tác!');
+                return;
+            }
+
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(dataPayload)
+                });
+
+                const result = await response.json();
+                if (result.status === 'success') {
+                    alert(`Gửi đánh giá thành công!\nTổng điểm: ${result.tongDiem}/100\nXếp loại đề xuất: ${result.xepLoai}`);
+                    document.getElementById('formDanhGia').reset();
+                    doiLoaiVienChuc();
+                } else {
+                    alert('Lỗi: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Lỗi kết nối:', error);
+                alert('Không thể kết nối tới Google Apps Script!');
+            }
+        }
     </script>
 </body>
 </html>
