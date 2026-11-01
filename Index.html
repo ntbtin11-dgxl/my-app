@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .table-row-hover:hover { background-color: #f8fafc; }
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  </style>
+</head>
+<body class="bg-gray-100 p-4 md:p-8">
+
+  <div class="max-w-6xl mx-auto bg-white p-6 md:p-10 rounded shadow-xl">
+    <div class="flex flex-wrap gap-4 border-b pb-4 mb-6">
+      <button onclick="chuyenTab('formContainer')" class="px-5 py-2 bg-blue-600 text-white rounded font-bold shadow">📝 Viết Phiếu</button>
+      <button onclick="taiDanhSach()" class="px-5 py-2 bg-gray-200 text-gray-800 rounded font-bold shadow">📊 Xem Danh Sách / Sửa</button>
+    </div>
+
+    <!-- MÀN HÌNH 1: FORM -->
+    <div id="formContainer">
+      <h2 class="text-2xl font-bold mb-2 text-center uppercase">Bản tự đánh giá, xếp loại của cá nhân</h2>
+      <h3 id="formTitleMode" class="text-center text-blue-600 font-bold mb-6">(CHẾ ĐỘ: TẠO MỚI)</h3>
+      
+      <form id="danhGiaForm" onsubmit="xuLyLuuPhieu(event)">
+        <input type="hidden" id="phieuId" value="">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 bg-gray-50 p-4 rounded border">
+          <div><label class="font-bold text-sm">Họ và tên</label><input type="text" id="hoTen" class="w-full border p-2 rounded" required></div>
+          
+          <!-- KHU VỰC QUÝ/NĂM ĐÃ ĐƯỢC CHUYỂN THÀNH DROPDOWN -->
+          <div>
+            <label class="font-bold text-sm">Chọn Quý / Năm</label>
+            <div class="flex items-center space-x-2 mt-1">
+              <select id="quy" class="w-1/2 border p-2 rounded bg-white text-center font-bold text-blue-700">
+                <option value="Quý 1">Quý 1</option>
+                <option value="Quý 2">Quý 2</option>
+                <option value="Quý 3">Quý 3</option>
+                <option value="Quý 4">Quý 4</option>
+              </select>
+              <span class="font-bold">/</span>
+              <input type="number" id="nam" value="2026" min="2020" class="w-1/2 border p-2 rounded text-center font-bold text-blue-700" required>
+            </div>
+          </div>
+
+          <div><label class="font-bold text-sm">Chức vụ (Đảng/Chính quyền/Đoàn thể)</label><input type="text" id="chucVu" class="w-full border p-2 rounded" required></div>
+          <div><label class="font-bold text-sm">Đơn vị công tác</label><input type="text" id="donVi" class="w-full border p-2 rounded" required></div>
+          <div class="col-span-1 md:col-span-2">
+            <label class="font-bold text-red-600">Đối tượng đánh giá</label>
+            <select id="doiTuong" onchange="renderForm()" class="w-full border p-2 rounded font-bold bg-white">
+              <option value="A">A. Viên chức KHÔNG giữ chức vụ quản lý</option>
+              <option value="B">B. Viên chức giữ chức vụ Lãnh đạo, Quản lý</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="border rounded overflow-hidden">
+          <table class="min-w-full bg-white">
+            <thead class="bg-gray-800 text-white">
+              <tr>
+                <th class="py-3 px-4 text-left w-3/4">Nội dung đánh giá</th>
+                <th class="py-3 px-4 text-center w-1/8">Điểm chuẩn</th>
+                <th class="py-3 px-4 text-center w-1/8">Tự chấm</th>
+              </tr>
+            </thead>
+            <tbody id="khungChamDiem"></tbody>
+          </table>
+        </div>
+
+        <div class="mt-6 flex flex-col md:flex-row gap-4">
+          <div class="flex-1 bg-yellow-50 p-4 rounded border flex items-center justify-between">
+            <span class="text-xl font-bold">TỔNG ĐIỂM:</span>
+            <span class="text-3xl font-bold text-red-600"><span id="tongDiemHienThi">0</span> / 100</span>
+          </div>
+          <div class="flex-1 bg-blue-50 p-4 rounded border">
+            <label class="font-bold block mb-2 text-blue-800">Tự đề xuất xếp loại mức chất lượng</label>
+            <select id="xepLoai" class="w-full border p-2 rounded font-bold bg-white text-blue-900 pointer-events-none" readonly>
+              <option value="Không hoàn thành nhiệm vụ">Không hoàn thành nhiệm vụ (< 50đ)</option>
+              <option value="Hoàn thành nhiệm vụ">Hoàn thành nhiệm vụ (50 - 69đ)</option>
+              <option value="Hoàn thành tốt nhiệm vụ">Hoàn thành tốt nhiệm vụ (70 - 89đ)</option>
+              <option value="Hoàn thành xuất sắc nhiệm vụ">Hoàn thành xuất sắc nhiệm vụ (>= 90đ)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex justify-center space-x-4 mt-8">
+          <button type="button" onclick="resetForm()" class="px-6 py-2 bg-gray-400 text-white rounded font-bold hidden" id="btnHuySua">Hủy Chỉnh Sửa</button>
+          <button type="submit" id="btnSave" class="px-8 py-3 bg-green-600 text-white rounded font-bold shadow-lg hover:bg-green-700 uppercase">Lưu Phiếu Đánh Giá</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- MÀN HÌNH 2: DANH SÁCH -->
+    <div id="listContainer" class="hidden">
+      <h2 class="text-2xl font-bold mb-4">Danh sách phiếu đã lưu</h2>
+      <div class="overflow-x-auto border rounded">
+        <table class="min-w-full bg-white">
+          <thead class="bg-gray-800 text-white">
+            <tr><th>Thời gian nộp</th><th>Họ tên</th><th>Quý/Năm</th><th>Tổng điểm</th><th>Xếp loại</th><th>Thao tác</th></tr>
+          </thead>
+          <tbody id="tableBody" class="text-center text-sm"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const cauTruc = {
+      P1: [
+        { id: 'p1_1', title: '1. Phẩm chất chính trị, phẩm chất đạo đức và ý thức kỷ luật, kỷ cương trong thực thi nhiệm vụ', maxGroup: 17, items: [ 
+          {id: 'p1_1a', max:2, label: 'a. Chấp hành đường lối, chủ trương của Đảng, chính sách, pháp luật của Nhà nước và quy định của cơ quan, tổ chức, đơn vị;'}, 
+          {id: 'p1_1b', max:2, label: 'b. Có lập trường chính trị vững vàng; giữ gìn phẩm chất đạo đức, lối sống lành mạnh; không có biểu hiện suy thoái về tư tưởng chính trị, đạo đức, lối sống;'}, 
+          {id: 'p1_1c', max:2, label: 'c. Thực hiện đúng chuẩn mực đạo đức nghề nghiệp; trung thực, khách quan, công bằng trong thực hiện nhiệm vụ chuyên môn;'}, 
+          {id: 'p1_1d', max:1, label: 'd. Không tham nhũng, tiêu cực, lãng phí; không lợi dụng vị trí công tác để vụ lợi; không để người thân, người quen lợi dụng vị trí công tác của mình để trục lợi;'}, 
+          {id: 'p1_1đ', max:2, label: 'đ. Có tinh thần đoàn kết, hợp tác trong công tác; tích cực tham gia các hoạt động tập thể, xây dựng môi trường làm việc chuyên nghiệp;'}, 
+          {id: 'p1_1e', max:2, label: 'e. Có tinh thần tự phê bình và phê bình; chủ động nhận diện hạn chế, khuyết điểm của bản thân và có biện pháp khắc phục;'}, 
+          {id: 'p1_1g', max:2, label: 'g. Chấp hành sự phân công của tổ chức; thực hiện đầy đủ chức trách, nhiệm vụ được giao;'}, 
+          {id: 'p1_1h', max:2, label: 'h. Thực hiện các quy định, quy chế, nội quy của cơ quan, tổ chức, đơn vị nơi công tác, phát huy trách nhiệm của cá nhân trong xây dựng tập thể cơ quan, tổ chức, đơn vị;'}, 
+          {id: 'p1_1i', max:1, label: 'i. Thực hiện việc kê khai và công khai tài sản, thu nhập theo quy định;'}, 
+          {id: 'p1_1k', max:1, label: 'k. Báo cáo đầy đủ, trung thực, cung cấp thông tin chính xác, khách quan về những nội dung liên quan đến việc thực hiện chức trách, nhiệm vụ được giao...'} 
+        ] },
+        { id: 'p1_2', title: '2. Năng lực chuyên môn, nghiệp vụ theo yêu cầu của vị trí việc làm; tinh thần trách nhiệm trong thực thi nhiệm vụ; thái độ phục vụ Nhân dân, doanh nghiệp; khả năng phối hợp trong công tác.', maxGroup: 8, items: [ 
+          {id: 'p1_2a', max:2, label: 'a. Năng lực chuyên môn, nghiệp vụ theo yêu cầu của vị trí việc làm'}, 
+          {id: 'p1_2b', max:2, label: 'b. Khả năng đáp ứng yêu cầu thực thi nhiệm vụ được giao thường xuyên, đột xuất'}, 
+          {id: 'p1_2c', max:2, label: 'c. Tinh thần trách nhiệm trong thực hiện nhiệm vụ'}, 
+          {id: 'p1_2d', max:2, label: 'd. Thái độ phục vụ người sử dụng dịch vụ sự nghiệp công và các tổ chức, cá nhân có liên quan; khả năng phối hợp với đồng nghiệp'} 
+        ] },
+        { id: 'p1_3', title: '3. Năng lực đổi mới, sáng tạo; dám nghĩ, dám làm, dám chịu trách nhiệm vì lợi ích chung trong thực hiện nhiệm vụ.', maxGroup: 5, items: [ 
+          {id: 'p1_3a', max:2, label: 'a. Có sản phẩm, giải pháp đột phá, sáng tạo đem lại giá trị, hiệu quả thiết thực...'}, 
+          {id: 'p1_3b', max:2, label: 'b. Có tinh thần chịu trách nhiệm trước kết quả công việc; chủ động nhận trách nhiệm khi có sai sót và có biện pháp khắc phục rõ ràng, cụ thể;'}, 
+          {id: 'p1_3c', max:1, label: 'c. Chủ động đưa ra quyết định trong phạm vi thẩm quyền, không né tránh; có tinh thần tiên phong trong thực hiện những nhiệm vụ mới.'} 
+        ] }
+      ],
+      P2_A: [
+        { id: 'p2a', title: 'Phần II. Khung tiêu chí thực hiện nhiệm vụ (Đối với viên chức KHÔNG giữ chức vụ quản lý)', maxGroup: 70, items: [ 
+          {id: 'p2_a1', max:15, label: '1. Tiêu chí về số lượng thể hiện mức độ hoàn thành sản phẩm, công việc thuộc nhiệm vụ được phân công;'}, 
+          {id: 'p2_a2', max:15, label: '2. Tiêu chí về chất lượng thể hiện mức độ đáp ứng tiêu chuẩn, mục đích, yêu cầu, hiệu quả của sản phẩm, dịch vụ;'}, 
+          {id: 'p2_a3', max:15, label: '3. Tiêu chí về tiến độ thể hiện mức độ bảo đảm về thời gian trong quá trình thực hiện nhiệm vụ;'}, 
+          {id: 'p2_a4', max:14, label: '4. Tiêu chí sản phẩm, kết quả đổi mới, sáng kiến, ứng dụng công nghệ/chuyển đổi số, đóng góp nổi bật cho nhà trường;'}, 
+          {id: 'p2_a5', max:11, label: '5. Tiêu chí vượt trội trong công tác tại đơn vị.'} 
+        ] }
+      ],
+      P2_B: [
+        { id: 'p2b', title: 'Phần II. Khung tiêu chí thực hiện nhiệm vụ (Đối với viên chức GIỮ chức vụ lãnh đạo, quản lý)', maxGroup: 70, items: [ 
+          {id: 'p2_b1', max:8, label: '1. Tiêu chí về số lượng thể hiện mức độ hoàn thành sản phẩm, công việc thuộc nhiệm vụ được phân công;'}, 
+          {id: 'p2_b2', max:9, label: '2. Tiêu chí về chất lượng thể hiện mức độ đáp ứng tiêu chuẩn, mục đích, yêu cầu, hiệu quả của sản phẩm, dịch vụ;'}, 
+          {id: 'p2_b3', max:8, label: '3. Tiêu chí về tiến độ thể hiện mức độ bảo đảm về thời gian trong quá trình thực hiện nhiệm vụ;'}, 
+          {id: 'p2_b4', max:9, label: '4. Tiêu chí về kết quả hoạt động của đơn vị thuộc phạm vi quản lý hoặc lĩnh vực được giao quản lý, phụ trách;'}, 
+          {id: 'p2_b5', max:9, label: '5. Tiêu chí về khả năng tổ chức triển khai thực hiện nhiệm vụ; xây dựng kế hoạch, phân công, phân nhiệm, kiểm tra, giám sát, xử lý hiệu quả công việc;'}, 
+          {id: 'p2_b6', max:8, label: '6. Tiêu chí về năng lực tập hợp, đoàn kết viên chức, người lao động thuộc thẩm quyền quản lý;'}, 
+          {id: 'p2_b7', max:8, label: '7. Tiêu chí sản phẩm, kết quả đổi mới, sáng kiến, ứng dụng công nghệ/chuyển đổi số, đóng góp nổi bật cho nhà trường;'}, 
+          {id: 'p2_b8', max:11, label: '8. Tiêu chí vượt trội trong công tác tại đơn vị.'} 
+        ] }
+      ]
+    };
+
+    function renderForm() {
+      let html = '<tr class="bg-blue-100 text-blue-900 font-bold"><td colspan="3" class="py-2 px-4 uppercase">Phần 1: Khung tiêu chí chung (30 Điểm)</td></tr>';
+      cauTruc.P1.forEach(g => {
+        html += `<tr class="bg-gray-200 font-bold text-gray-800"><td class="py-2 px-4">${g.title}</td><td class="text-center">${g.maxGroup}</td><td class="text-center"></td></tr>`;
+        g.items.forEach(i => { html += taoOInput(i.id, i.label, i.max); });
+      });
+
+      let doiTuong = document.getElementById('doiTuong').value;
+      let p2Data = doiTuong === 'A' ? cauTruc.P2_A : cauTruc.P2_B;
+      
+      html += '<tr class="bg-green-100 text-green-900 font-bold"><td colspan="3" class="py-2 px-4 uppercase">Phần II. Khung tiêu chí thực hiện nhiệm vụ (70 Điểm)</td></tr>';
+      p2Data.forEach(g => {
+        html += `<tr class="bg-gray-200 font-bold text-gray-800"><td class="py-2 px-4">${g.title}</td><td class="text-center">${g.maxGroup}</td><td class="text-center"></td></tr>`;
+        g.items.forEach(i => { html += taoOInput(i.id, i.label, i.max); });
+      });
+
+      document.getElementById('khungChamDiem').innerHTML = html;
+      tinhTongDiem();
+    }
+
+    function taoOInput(id, label, max) {
+      return `
+        <tr class="border-b table-row-hover">
+          <td class="py-2 px-4 text-sm text-gray-700 pr-4">${label}</td>
+          <td class="py-2 px-4 text-center font-semibold text-gray-600">${max}</td>
+          <td class="py-2 px-4 text-center">
+            <input type="number" id="${id}" max="${max}" min="0" value="${max}" oninput="kiemTraVaTinhDiem(this, ${max})" 
+                   class="w-16 border border-gray-400 p-1 rounded text-center inp-diem font-bold text-blue-700 bg-blue-50 focus:bg-white focus:ring-2 focus:ring-blue-500 transition" title="Tối đa ${max}đ">
+          </td>
+        </tr>`;
+    }
+
+    function kiemTraVaTinhDiem(input, max) {
+      let val = Number(input.value);
+      if (val > max) { alert(`Chỉ được chấm tối đa ${max} điểm!`); input.value = max; }
+      if (val < 0) { input.value = 0; }
+      tinhTongDiem();
+    }
+
+    function tinhTongDiem() {
+      let inputs = document.querySelectorAll('.inp-diem');
+      let tong = 0;
+      inputs.forEach(inp => tong += (Number(inp.value) || 0));
+      document.getElementById('tongDiemHienThi').innerText = tong;
+      
+      let xepLoai = document.getElementById('xepLoai');
+      if (tong >= 90) xepLoai.value = "Hoàn thành xuất sắc nhiệm vụ";
+      else if (tong >= 70) xepLoai.value = "Hoàn thành tốt nhiệm vụ";
+      else if (tong >= 50) xepLoai.value = "Hoàn thành nhiệm vụ";
+      else xepLoai.value = "Không hoàn thành nhiệm vụ";
+    }
+
+    function chuyenTab(tab) {
+      document.getElementById('formContainer').classList.add('hidden');
+      document.getElementById('listContainer').classList.add('hidden');
+      document.getElementById(tab).classList.remove('hidden');
+    }
+
+    function xuLyLuuPhieu(e) {
+      e.preventDefault();
+      var btn = document.getElementById('btnSave'); 
+      btn.innerText = "ĐANG LƯU..."; 
+      btn.disabled = true;
+
+      let chiTiet = {}; let p1 = 0; let p2 = 0;
+      document.querySelectorAll('.inp-diem').forEach(inp => {
+        chiTiet[inp.id] = Number(inp.value);
+        if(inp.id.startsWith('p1_')) p1 += chiTiet[inp.id]; else p2 += chiTiet[inp.id];
+      });
+
+      // GỘP QUÝ VÀ NĂM THÀNH CHUỖI GỬI LÊN SERVER
+      let quyNamChuan = document.getElementById('quy').value + '/' + document.getElementById('nam').value;
+
+      var data = {
+        id: document.getElementById('phieuId').value,
+        hoTen: document.getElementById('hoTen').value,
+        quyNam: quyNamChuan, 
+        chucVu: document.getElementById('chucVu').value,
+        donVi: document.getElementById('donVi').value, 
+        doiTuong: document.getElementById('doiTuong').value,
+        tongP1: p1, tongP2: p2, tongDiem: p1 + p2, 
+        xepLoai: document.getElementById('xepLoai').value, 
+        chiTiet: chiTiet
+      };
+
+      google.script.run.withSuccessHandler(res => {
+        if (res.status === 'success') {
+          alert(res.message); 
+          resetForm(); 
+        } else {
+          alert(res.message);
+        }
+        btn.innerText = "LƯU PHIẾU ĐÁNH GIÁ"; 
+        btn.disabled = false;
+      }).withFailureHandler(err => {
+        alert("Lỗi kết nối máy chủ: " + err.message);
+        btn.innerText = "LƯU PHIẾU ĐÁNH GIÁ"; 
+        btn.disabled = false;
+      }).luuPhieuDanhGia(data);
+    }
+
+    function taiDanhSach() {
+      chuyenTab('listContainer');
+      document.getElementById('tableBody').innerHTML = '<tr><td colspan="6" class="p-4">Đang tải danh sách...</td></tr>';
+      google.script.run.withSuccessHandler(rows => {
+        let h = '';
+        rows.forEach(r => {
+          let mauXL = r[10].includes('xuất sắc') ? 'text-green-600' : (r[10].includes('tốt') ? 'text-blue-600' : (r[10].includes('Không') ? 'text-red-600' : 'text-yellow-600'));
+          h += `<tr class="border-b table-row-hover">
+                  <td class="p-3">${new Date(r[1]).toLocaleDateString('vi-VN')}</td>
+                  <td class="p-3 font-bold text-left">${r[2]}</td><td class="p-3">${r[3]}</td>
+                  <td class="p-3 font-bold text-lg text-red-600">${r[9]}</td><td class="p-3 font-semibold ${mauXL}">${r[10]}</td>
+                  <td class="p-3 flex justify-center space-x-2">
+                    <button onclick="suaPhieu('${r[0]}')" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm shadow">Sửa</button>
+                    <button onclick="taiPDF_TuHang(this, '${r[0]}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm shadow">Tải PDF</button>
+                  </td>
+                </tr>`;
+        });
+        document.getElementById('tableBody').innerHTML = h || '<tr><td colspan="6" class="p-4">Chưa có dữ liệu</td></tr>';
+      }).layDanhSachPhieu();
+    }
+
+    function suaPhieu(id) {
+      alert("Đang mở dữ liệu phiếu...");
+      google.script.run.withSuccessHandler(data => {
+        if(!data) return alert("Không tìm thấy dữ liệu!");
+        chuyenTab('formContainer');
+        document.getElementById('formTitleMode').innerText = '(CHẾ ĐỘ: ĐANG CHỈNH SỬA)';
+        document.getElementById('btnHuySua').classList.remove('hidden');
+        
+        document.getElementById('phieuId').value = data.id; 
+        document.getElementById('hoTen').value = data.hoTen;
+        
+        // TÁCH CHUỖI QUÝ/NĂM TỪ SERVER ĐỂ BƠM LẠI VÀO DROPDOWN
+        if (data.quyNam) {
+          let phanQuyNam = data.quyNam.split('/');
+          if(phanQuyNam.length >= 2) {
+            document.getElementById('quy').value = phanQuyNam[0].trim();
+            document.getElementById('nam').value = phanQuyNam[1].trim();
+          }
+        }
+        
+        document.getElementById('chucVu').value = data.chucVu;
+        document.getElementById('donVi').value = data.donVi; 
+        document.getElementById('doiTuong').value = data.doiTuong;
+        
+        renderForm();
+        for(let key in data.chiTiet) { 
+          if(document.getElementById(key)) document.getElementById(key).value = data.chiTiet[key]; 
+        }
+        tinhTongDiem();
+      }).layChiTietPhieu(id);
+    }
+
+    function taiPDF_TuHang(btn, id) {
+      btn.innerText = "Đang tạo...";
+      google.script.run.withSuccessHandler(data => {
+        if(!data) { btn.innerText = "Tải PDF"; return alert("Lỗi tải dữ liệu"); }
+        
+        let p2Data = data.doiTuong === 'A' ? cauTruc.P2_A : cauTruc.P2_B;
+        let htmlContent = `
+          <div style="font-family: 'Times New Roman', serif; font-size: 14px; padding: 10px;">
+            <table width="100%" style="margin-bottom: 10px;">
+              <tr>
+                <td width="40%" align="center">SỞ GD&ĐT ĐĂK LĂK<br><b>TRƯỜNG THPT SỐ 1<br>NGUYỄN THÁI BÌNH</b></td>
+                <td width="60%" align="center"><b>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh phúc</b><br><i>..., ngày... tháng... năm 2026</i></td>
+              </tr>
+            </table>
+            <h2 style="text-align: center; font-size: 16px;">BẢN TỰ ĐÁNH GIÁ, XẾP LOẠI CỦA CÁ NHÂN</h2>
+            <h4 style="text-align: center; font-size: 14px; font-weight: normal;">${data.quyNam}</h4>
+            
+            <p><b>Họ và tên:</b> ${data.hoTen}</p>
+            <p><b>Chức vụ:</b> ${data.chucVu}</p>
+            <p><b>Đơn vị công tác:</b> ${data.donVi}</p>
+            
+            <p><b>I. Tự đánh giá kết quả thực hiện nhiệm vụ</b></p>
+            <table border="1" cellspacing="0" cellpadding="5" style="width: 100%; border-collapse: collapse; font-size: 13px;">
+              <tr style="background-color: #f0f0f0;">
+                <th>Nội dung đánh giá</th>
+                <th width="12%">Điểm chuẩn</th>
+                <th width="12%">Tự chấm</th>
+              </tr>
+              <tr><td colspan="3"><b>Phần 1: Khung tiêu chí chung (30đ)</b></td></tr>
+        `;
+        
+        cauTruc.P1.forEach(g => {
+          htmlContent += `<tr><td colspan="3"><b>${g.title}</b></td></tr>`;
+          g.items.forEach(i => {
+            htmlContent += `<tr><td>${i.label}</td><td align="center">${i.max}</td><td align="center"><b>${data.chiTiet[i.id]}</b></td></tr>`;
+          });
+        });
+
+        htmlContent += `<tr><td colspan="3"><b>Phần II: Khung tiêu chí thực hiện nhiệm vụ (70đ)</b></td></tr>`;
+        p2Data.forEach(g => {
+          htmlContent += `<tr><td colspan="3"><b>${g.title}</b></td></tr>`;
+          g.items.forEach(i => {
+            htmlContent += `<tr><td>${i.label}</td><td align="center">${i.max}</td><td align="center"><b>${data.chiTiet[i.id]}</b></td></tr>`;
+          });
+        });
+
+        htmlContent += `
+              <tr>
+                <td align="right"><b>TỔNG CỘNG ĐIỂM:</b></td>
+                <td align="center"><b>100</b></td>
+                <td align="center" style="color: red; font-size: 15px;"><b>${data.tongDiem}</b></td>
+              </tr>
+            </table>
+            
+            <p style="margin-top: 15px;"><b>II. Tự đề xuất xếp loại mức chất lượng:</b> ${data.xepLoai}</p>
+            
+            <table width="100%" style="margin-top: 40px; font-size: 14px;">
+              <tr>
+                <td width="50%" align="center"><b>XÁC NHẬN CỦA LÃNH ĐẠO ĐƠN VỊ</b></td>
+                <td width="50%" align="center"><b>CÁ NHÂN TỰ ĐÁNH GIÁ</b><br><i>(Ký, ghi rõ họ tên)</i></td>
+              </tr>
+            </table>
+          </div>
+        `;
+        
+        google.script.run.withSuccessHandler(res => {
+          btn.innerText = "Tải PDF";
+          if(res.status === 'success') window.open(res.url, '_blank'); 
+          else alert("Lỗi tạo PDF: " + res.message);
+        }).taoPDF_TuHTML(data.hoTen, data.quyNam, htmlContent);
+        
+      }).layChiTietPhieu(id);
+    }
+
+    function resetForm() {
+      document.getElementById('danhGiaForm').reset(); 
+      document.getElementById('phieuId').value = "";
+      document.getElementById('formTitleMode').innerText = '(CHẾ ĐỘ: TẠO MỚI)';
+      document.getElementById('btnHuySua').classList.add('hidden'); 
+      renderForm();
+    }
+    
+    // Tự động khởi tạo form khi mở trang
+    renderForm();
+  </script>
+</body>
+</html>
