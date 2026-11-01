@@ -1,236 +1,132 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đánh Giá Xếp Loại Viên Chức</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.5; background-color: #f9f9f9; }
-        .container { max-width: 900px; margin: 0 auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h2, h3 { text-align: center; color: #1a252f; }
-        .form-group { margin-bottom: 12px; }
-        label { font-weight: bold; display: block; margin-bottom: 4px; }
-        input[type="text"], select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        input[type="number"] { width: 60px; text-align: center; padding: 4px; }
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-        .btn { padding: 12px 20px; border: none; font-size: 15px; cursor: pointer; border-radius: 4px; flex: 1; font-weight: bold; color: white; }
-        .btn-preview { background-color: #2196F3; }
-        .btn-submit { background-color: #4CAF50; }
-        .btn:hover { opacity: 0.9; }
-
-        /* Modal xem trước */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
-        .modal-content { background: white; width: 80%; max-width: 700px; margin: 5% auto; padding: 20px; border-radius: 8px; max-height: 80vh; overflow-y: auto; }
-        .close-btn { float: right; font-size: 24px; cursor: pointer; font-weight: bold; }
-        .pdf-link { display: inline-block; margin-top: 15px; background: #e74c3c; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold; }
-    </style>
+  <base target="_top">
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-gray-100 p-6">
 
-<div class="container">
-    <h2>BẢN TỰ ĐÁNH GIÁ, XẾP LOẠI CỦA CÁ NHÂN</h2>
-    <h3>Trường THPT Số 1 Nguyễn Thái Bình</h3>
-
-    <form id="formDanhGia">
-        <div class="form-group">
-            <label>Đánh giá Quý/Năm:</label>
-            <input type="text" id="quyNam" value="Quý 1/2026" required>
-        </div>
-        <div class="form-group">
-            <label>Họ và tên:</label>
-            <input type="text" id="hoTen" required>
-        </div>
-        <div class="form-group">
-            <label>Ngày sinh:</label>
-            <input type="text" id="ngaySinh" placeholder="DD/MM/YYYY">
-        </div>
-        <div class="form-group">
-            <label>Chức vụ Đảng:</label>
-            <input type="text" id="chucVuDang">
-        </div>
-        <div class="form-group">
-            <label>Chức vụ chính quyền:</label>
-            <input type="text" id="chucVuChinhQuyen">
-        </div>
-        <div class="form-group">
-            <label>Chức vụ đoàn thể:</label>
-            <input type="text" id="chucVuDoanThe">
-        </div>
-        <div class="form-group">
-            <label>Đơn vị công tác (Tổ chuyên môn):</label>
-            <input type="text" id="donVi" required>
-        </div>
-        <div class="form-group">
-            <label>Đối tượng viên chức:</label>
-            <select id="loaiVienChuc" onchange="doiLoaiVienChuc()">
-                <option value="khong_quan_ly">Viên chức không giữ chức vụ quản lý</option>
-                <option value="quan_ly">Viên chức giữ chức vụ lãnh đạo, quản lý</option>
-            </select>
-        </div>
-
-        <h3>PHẦN I: KHUNG TIÊU CHÍ CHUNG (Tối đa 30 điểm)</h3>
-        <table>
-            <tr><th>TT</th><th>Nội dung tiêu chí</th><th>Điểm tối đa</th><th>Tự chấm</th></tr>
-            <tr><td>1.a</td><td>Chấp hành đường lối, chủ trương của Đảng, pháp luật...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
-            <tr><td>1.b</td><td>Lập trường chính trị vững vàng, đạo đức lối sống...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
-            <tr><td>1.c</td><td>Chuẩn mực đạo đức nghề nghiệp, trung thực...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
-            <tr><td>1.d</td><td>Không tham nhũng, tiêu cực, lãng phí...</td><td>1</td><td><input type="number" class="p1" max="1" min="0" value="1"></td></tr>
-            <tr><td>1.đ</td><td>Tinh thần đoàn kết, hợp tác...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
-            <tr><td>1.e</td><td>Tự phê bình và phê bình...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
-            <tr><td>1.g</td><td>Chấp hành phân công của tổ chức...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
-            <tr><td>1.h</td><td>Thực hiện quy chế, nội quy cơ quan...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
-            <tr><td>1.i</td><td>Kê khai tài sản, thu nhập...</td><td>1</td><td><input type="number" class="p1" max="1" min="0" value="1"></td></tr>
-            <tr><td>1.k</td><td>Báo cáo đầy đủ, trung thực...</td><td>1</td><td><input type="number" class="p1" max="1" min="0" value="1"></td></tr>
-            <tr><td>2.a</td><td>Năng lực chuyên môn, nghiệp vụ...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
-            <tr><td>2.b</td><td>Khả năng đáp ứng nhiệm vụ thường xuyên, đột xuất...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
-            <tr><td>2.c</td><td>Tinh thần trách nhiệm trong thực hiện nhiệm vụ...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
-            <tr><td>2.d</td><td>Thái độ phục vụ, phối hợp đồng nghiệp...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
-            <tr><td>3.a</td><td>Sản phẩm, giải pháp đột phá, sáng tạo...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
-            <tr><td>3.b</td><td>Tinh thần chịu trách nhiệm...</td><td>2</td><td><input type="number" class="p1" max="2" min="0" value="2"></td></tr>
-            <tr><td>3.c</td><td>Chủ động ra quyết định, không né tránh...</td><td>1</td><td><input type="number" class="p1" max="1" min="0" value="1"></td></tr>
-        </table>
-
-        <h3>PHẦN II: KHUNG TIÊU CHÍ THỰC HIỆN NHIỆM VỤ (Tối đa 70 điểm)</h3>
-        
-        <table id="tblKhongQuanLy">
-            <tr><th>TT</th><th>Tiêu chí (Không quản lý)</th><th>Điểm tối đa</th><th>Tự chấm</th></tr>
-            <tr><td>1</td><td>Mức độ hoàn thành số lượng sản phẩm, công việc</td><td>15</td><td><input type="number" class="p2_kql" max="15" min="0" value="15"></td></tr>
-            <tr><td>2</td><td>Chất lượng, hiệu quả sản phẩm, dịch vụ</td><td>15</td><td><input type="number" class="p2_kql" max="15" min="0" value="15"></td></tr>
-            <tr><td>3</td><td>Tiến độ, bảo đảm thời gian thực hiện</td><td>15</td><td><input type="number" class="p2_kql" max="15" min="0" value="15"></td></tr>
-            <tr><td>4</td><td>Đổi mới, sáng kiến, ứng dụng CNTT/chuyển đổi số</td><td>14</td><td><input type="number" class="p2_kql" max="14" min="0" value="14"></td></tr>
-            <tr><td>5</td><td>Kết quả vượt trội trong công tác</td><td>11</td><td><input type="number" class="p2_kql" max="11" min="0" value="11"></td></tr>
-        </table>
-
-        <table id="tblQuanLy" style="display:none;">
-            <tr><th>TT</th><th>Tiêu chí (Lãnh đạo, quản lý)</th><th>Điểm tối đa</th><th>Tự chấm</th></tr>
-            <tr><td>1</td><td>Mức độ hoàn thành số lượng sản phẩm, công việc</td><td>8</td><td><input type="number" class="p2_ql" max="8" min="0" value="8"></td></tr>
-            <tr><td>2</td><td>Chất lượng, hiệu quả công việc</td><td>9</td><td><input type="number" class="p2_ql" max="9" min="0" value="9"></td></tr>
-            <tr><td>3</td><td>Tiến độ thực hiện nhiệm vụ</td><td>8</td><td><input type="number" class="p2_ql" max="8" min="0" value="8"></td></tr>
-            <tr><td>4</td><td>Kết quả hoạt động của đơn vị được giao phụ trách</td><td>9</td><td><input type="number" class="p2_ql" max="9" min="0" value="9"></td></tr>
-            <tr><td>5</td><td>Năng lực tổ chức, điều hành, kiểm tra, giám sát</td><td>9</td><td><input type="number" class="p2_ql" max="9" min="0" value="9"></td></tr>
-            <tr><td>6</td><td>Năng lực tập hợp, đoàn kết quần chúng</td><td>8</td><td><input type="number" class="p2_ql" max="8" min="0" value="8"></td></tr>
-            <tr><td>7</td><td>Đổi mới sáng kiến, chuyển đổi số nổi bật</td><td>8</td><td><input type="number" class="p2_ql" max="8" min="0" value="8"></td></tr>
-            <tr><td>8</td><td>Kết quả vượt trội trong công tác</td><td>11</td><td><input type="number" class="p2_ql" max="11" min="0" value="11"></td></tr>
-        </table>
-
-        <div class="btn-group">
-            <button type="button" class="btn btn-preview" onclick="xemTruocPhiu()">XEM TRƯỚC PHIẾU</button>
-            <button type="button" class="btn btn-submit" onclick="guiDanhGia()">LƯU & XUẤT FILE PDF</button>
-        </div>
-    </form>
-</div>
-
-<!-- Khung Modal xem trước -->
-<div id="modalXemTruoc" class="modal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="dongModal()">&times;</span>
-        <h3 style="text-align:center;">XEM TRƯỚC PHIẾU ĐÁNH GIÁ</h3>
-        <hr>
-        <div id="noiDungXemTruoc"></div>
+  <div class="max-w-6xl mx-auto bg-white p-8 rounded shadow">
+    <!-- Navbar điều hướng -->
+    <div class="flex space-x-4 border-b pb-4 mb-6">
+      <button onclick="chuyenTab('formContainer')" class="px-4 py-2 bg-blue-600 text-white rounded">Tạo Phiếu / Đánh giá</button>
+      <button onclick="taiDanhSach()" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Tổng hợp / Xem lại</button>
     </div>
-</div>
 
-<script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxUpGBPg5RtqX5Dq1dWTZchXw4kveaNpxgEOXouXBtxYXFypsiFCv_xNyYUdy3721heJQ/exec';
-
-    function doiLoaiVienChuc() {
-        const loai = document.getElementById('loaiVienChuc').value;
-        document.getElementById('tblKhongQuanLy').style.display = (loai === 'quan_ly') ? 'none' : 'table';
-        document.getElementById('tblQuanLy').style.display = (loai === 'quan_ly') ? 'table' : 'none';
-    }
-
-    function tinhTongDiem() {
-        let p1 = 0, p2 = 0;
-        document.querySelectorAll('.p1').forEach(i => p1 += Number(i.value) || 0);
-        const loai = document.getElementById('loaiVienChuc').value;
-        const selector = loai === 'quan_ly' ? '.p2_ql' : '.p2_kql';
-        document.querySelectorAll(selector).forEach(i => p2 += Number(i.value) || 0);
+    <!-- Màn hình 1: Form đánh giá -->
+    <div id="formContainer">
+      <h2 class="text-2xl font-bold mb-4 text-center">BẢN TỰ ĐÁNH GIÁ, XẾP LOẠI</h2>
+      <form id="danhGiaForm" onsubmit="xuLyLuuPhieu(event)">
+        <input type="hidden" id="phieuId" name="id">
+        <input type="hidden" id="isEdit" name="isEdit" value="false">
         
-        const tong = p1 + p2;
-        let xepLoai = "Chưa hoàn thành nhiệm vụ";
-        if (tong >= 90) xepLoai = "Hoàn thành xuất sắc nhiệm vụ";
-        else if (tong >= 70) xepLoai = "Hoàn thành tốt nhiệm vụ";
-        else if (tong >= 50) xepLoai = "Hoàn thành nhiệm vụ";
-
-        return { p1, p2, tong, xepLoai };
-    }
-
-    function xemTruocPhiu() {
-        const d = tinhTongDiem();
-        const hoTen = document.getElementById('hoTen').value || '[Chưa nhập]';
-        const donVi = document.getElementById('donVi').value || '[Chưa nhập]';
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div>
+            <label class="block font-semibold">Họ và tên (Ví dụ: Nguyễn Văn Hưng)</label>
+            <input type="text" id="hoTen" class="w-full border p-2 rounded" required>
+          </div>
+          <div>
+            <label class="block font-semibold">Quý/Năm</label>
+            <input type="text" id="quyNam" placeholder="Quý 3/2026" class="w-full border p-2 rounded" required>
+          </div>
+        </div>
         
-        document.getElementById('noiDungXemTruoc').innerHTML = `
-            <p><b>Họ và tên:</b> ${hoTen}</p>
-            <p><b>Đơn vị:</b> ${donVi}</p>
-            <p><b>Điểm Phần I (Khung tiêu chí chung):</b> ${d.p1} / 30 điểm</p>
-            <p><b>Điểm Phần II (Thực hiện nhiệm vụ):</b> ${d.p2} / 70 điểm</p>
-            <p><b>Tổng điểm đánh giá:</b> <span style="color:blue; font-size:18px; font-weight:bold;">${d.tong} / 100 điểm</span></p>
-            <p><b>Mức xếp loại dự kiến:</b> <span style="color:green; font-size:18px; font-weight:bold;">${d.xepLoai}</span></p>
-        `;
-        document.getElementById('modalXemTruoc').style.display = 'block';
+        <!-- Đưa các tiêu chí chấm điểm chi tiết vào đây... -->
+        
+        <div class="flex space-x-4">
+          <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded font-bold">Lưu Dữ Liệu</button>
+          <button type="button" onclick="xuatPDF()" class="px-6 py-2 bg-red-600 text-white rounded font-bold">Lưu & Xuất PDF vào Drive</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Màn hình 2: Bảng tổng hợp -->
+    <div id="listContainer" class="hidden">
+      <h2 class="text-2xl font-bold mb-4">Danh sách tổng hợp đánh giá</h2>
+      <table class="min-w-full border-collapse border border-gray-300">
+        <thead class="bg-gray-200">
+          <tr>
+            <th class="border p-2">Họ tên</th>
+            <th class="border p-2">Quý/Năm</th>
+            <th class="border p-2">Tổng điểm</th>
+            <th class="border p-2">Xếp loại</th>
+            <th class="border p-2">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <!-- Dữ liệu render từ server -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    function chuyenTab(tabId) {
+      document.getElementById('formContainer').classList.add('hidden');
+      document.getElementById('listContainer').classList.add('hidden');
+      document.getElementById(tabId).classList.remove('hidden');
     }
 
-    function dongModal() {
-        document.getElementById('modalXemTruoc').style.display = 'none';
+    function xuLyLuuPhieu(e) {
+      e.preventDefault();
+      // Thu thập data
+      const data = {
+        id: document.getElementById('phieuId').value,
+        isEdit: document.getElementById('isEdit').value === 'true',
+        hoTen: document.getElementById('hoTen').value,
+        quyNam: document.getElementById('quyNam').value,
+        // Thêm các trường điểm số...
+      };
+
+      google.script.run.withSuccessHandler(res => {
+        alert(res.message);
+        document.getElementById('danhGiaForm').reset();
+      }).luuPhieuDanhGia(data);
     }
 
-    async function guiDanhGia() {
-        const hoTen = document.getElementById('hoTen').value;
-        const donVi = document.getElementById('donVi').value;
+    function taiDanhSach() {
+      chuyenTab('listContainer');
+      document.getElementById('tableBody').innerHTML = '<tr><td colspan="5" class="text-center p-4">Đang tải dữ liệu...</td></tr>';
+      
+      google.script.run.withSuccessHandler(rows => {
+        let html = '';
+        rows.forEach(row => {
+          html += `
+            <tr>
+              <td class="border p-2">${row.HoTen}</td>
+              <td class="border p-2">${row.QuyNam}</td>
+              <td class="border p-2 text-center">${row.TongDiem || ''}</td>
+              <td class="border p-2 text-center">${row.XepLoai || ''}</td>
+              <td class="border p-2 text-center">
+                <button onclick="xemChiTiet('${row.ID}')" class="text-blue-600 underline">Sửa</button>
+              </td>
+            </tr>`;
+        });
+        document.getElementById('tableBody').innerHTML = html;
+      }).layDanhSachPhieu();
+    }
 
-        if (!hoTen || !donVi) {
-            alert('Vui lòng nhập Họ tên và Đơn vị công tác trước khi lưu!');
-            return;
+    function xuatPDF() {
+      const data = {
+        hoTen: document.getElementById('hoTen').value,
+        quyNam: document.getElementById('quyNam').value,
+        donVi: 'THPT', // Lấy từ input
+        tongDiem: 95, // Tính toán từ form
+        xepLoai: 'Hoàn thành xuất sắc nhiệm vụ'
+      };
+      
+      alert("Đang tạo PDF và lưu vào Drive. Vui lòng đợi...");
+      google.script.run.withSuccessHandler(res => {
+        if(res.status === 'success') {
+          alert('Đã tạo thành công! Link: ' + res.url);
+          window.open(res.url, '_blank');
+        } else {
+          alert('Lỗi: ' + res.message);
         }
-
-        const d = tinhTongDiem();
-        const dataPayload = {
-            quyNam: document.getElementById('quyNam').value,
-            hoTen: hoTen,
-            ngaySinh: document.getElementById('ngaySinh').value,
-            chucVuDang: document.getElementById('chucVuDang').value,
-            chucVuChinhQuyen: document.getElementById('chucVuChinhQuyen').value,
-            chucVuDoanThe: document.getElementById('chucVuDoanThe').value,
-            donVi: donVi,
-            loaiVienChuc: document.getElementById('loaiVienChuc').value === 'quan_ly' ? 'Lãnh đạo, quản lý' : 'Viên chức',
-            tongPhan1: d.p1,
-            tongPhan2: d.p2,
-            chiTietDiem: { p1: d.p1, p2: d.p2 }
-        };
-
-        alert('Đang xử lý lưu phiếu và tạo tệp PDF, vui lòng đợi trong giây lát...');
-
-        try {
-            const response = await fetch(APPS_SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(dataPayload)
-            });
-
-            const result = await response.json();
-            if (result.status === 'success') {
-                document.getElementById('noiDungXemTruoc').innerHTML = `
-                    <h3 style="color:green;">LƯU PHIẾU VÀ TẠO PDF THÀNH CÔNG!</h3>
-                    <p><b>Họ và tên:</b> ${hoTen}</p>
-                    <p><b>Tổng điểm:</b> ${result.tongDiem} điểm</p>
-                    <p><b>Xếp loại:</b> ${result.xepLoai}</p>
-                    <a href="${result.pdfUrl}" target="_blank" class="pdf-link">📄 TẢI PHIẾU ĐÁNH GIÁ (FILE PDF)</a>
-                `;
-                document.getElementById('modalXemTruoc').style.display = 'block';
-                document.getElementById('formDanhGia').reset();
-                doiLoaiVienChuc();
-            } else {
-                alert('Lỗi: ' + result.message);
-            }
-        } catch (error) {
-            console.error('Lỗi kết nối:', error);
-            alert('Không thể kết nối đến hệ thống!');
-        }
+      }).taoFilePDF(data);
     }
-</script>
+    
+    // Hàm xemChiTiet() sẽ gọi google.script.run để lấy 1 bản ghi và điền ngược lại vào form, set isEdit = true.
+  </script>
 </body>
 </html>
